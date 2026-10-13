@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>大江生醫 (TCI) 海外擴廠專案評估矩陣</title>
+    <!-- 引入 Apache ECharts CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        body {
+            font-family: "PingFang TC", "Microsoft JhengHei", sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 24px;
+        }
+        #chart-container {
+            width: 100%;
+            height: 600px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="chart-container"></div>
+</div>
+
+<script>
+    var chartDom = document.getElementById('chart-container');
+    var myChart = echarts.init(chartDom);
+    var option;
+
+    // 專案數據資料集
+    const projects = ['歐洲 (CMO代工)', '美國猶他 (租轉買)', '歐洲 (自建廠房)', '印尼雅加達 (自建)', '中國上海 (既有據點)', '印度 (自建)'];
+    
+    // 各維度數據
+    const dataA = [15, 15, 15, 10, 10, 10]; // A. 關稅避險
+    const dataB = [10, 15, 15, 10, 10, 5];  // B. 智權護城河
+    const dataC = [45, 40, 25, 40, 40, 35]; // C. 財務專屬模組
+    const dataD = [25, 15, 25, 10, 15, 0];  // D. 永續與營運基建
+    const dataRisk = [0, 0, -5, -15, -35, -25]; // 客觀風險扣分
+
+    // 計算最終總分（示範暫評/最終分）
+    const totalScores = projects.map((_, i) => {
+        return dataA[i] + dataB[i] + dataC[i] + dataD[i] + dataRisk[i];
+    });
+
+    option = {
+        title: {
+            text: '大江生醫 (TCI) 海外擴廠專案評估與風險矩陣',
+            subtext: '第十一版·量化積分與客觀風險扣分視覺化 (雙向堆疊圖)',
+            left: 'center',
+            textStyle: { fontSize: 20, fontWeight: 'bold', color: '#1a1a1a' },
+            subtextStyle: { fontSize: 13, color: '#666666' }
+        },
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: { type: 'shadow' },
+            formatter: function (params) {
+                let res = `<strong>${params[0].name}</strong><br/>`;
+                let sum = 0;
+                params.forEach(item => {
+                    let val = item.value;
+                    res += `${item.marker} ${item.seriesName}: <strong>${val} 分</strong><br/>`;
+                    sum += val;
+                });
+                res += `<hr style="margin:5px 0; border:0; border-top:1px solid #ccc;"/>`;
+                res += `🎯 <strong>最終示範總分: ${sum} 分</strong>`;
+                return res;
+            }
+        },
+        legend: {
+            top: '10%',
+            data: ['A. 關稅與貿易避險 (15)', 'B. 商業與智權護城河 (15)', 'C. 財務專屬模組 (45)', 'D. 永續與營運基建 (25)', '客觀風險扣分']
+        },
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '8%',
+            top: '20%',
+            containLabel: true
+        },
+        xAxis: {
+            type: 'category',
+            data: projects,
+            axisLabel: { interval: 0, fontWeight: 'bold', fontSize: 12 }
+        },
+        yAxis: {
+            type: 'value',
+            name: '評估積分 (Score)',
+            min: -40,
+            max: 110,
+            splitLine: { lineStyle: { type: 'dashed' } }
+        },
+        series: [
+            {
+                name: 'A. 關稅與貿易避險 (15)',
+                type: 'bar',
+                stack: 'Total',
+                color: '#2b5c8f',
+                data: dataA
+            },
+            {
+                name: 'B. 商業與智權護城河 (15)',
+                type: 'bar',
+                stack: 'Total',
+                color: '#41b883',
+                data: dataB
+            },
+            {
+                name: 'C. 財務專屬模組 (45)',
+                type: 'bar',
+                stack: 'Total',
+                color: '#f5a623',
+                data: dataC
+            },
+            {
+                name: 'D. 永續與營運基建 (25)',
+                type: 'bar',
+                stack: 'Total',
+                color: '#7ed321',
+                data: dataD,
+                // 在正向柱體頂端標示最終總分
+                label: {
+                    show: true,
+                    position: 'top',
+                    formatter: function (params) {
+                        return `${totalScores[params.dataIndex]} 分`;
+                    },
+                    fontSize: 14,
+                    fontWeight: 'bold',
+                    color: '#000000'
+                }
+            },
+            {
+                name: '客觀風險扣分',
+                type: 'bar',
+                stack: 'Total',
+                color: '#d0021b',
+                data: dataRisk,
+                markLine: {
+                    symbol: 'none',
+                    data: [
+                        {
+                            yAxis: 80,
+                            name: '80分 戰略推進門檻',
+                            lineStyle: { color: '#e67e22', width: 2, type: 'dashed' },
+                            label: { formatter: '80分 戰略推進門檻', position: 'end', color: '#e67e22', fontWeight: 'bold' }
+                        },
+                        {
+                            yAxis: 0,
+                            lineStyle: { color: '#333333', width: 1.5, type: 'solid' }
+                        }
+                    ]
+                }
+            }
+        ]
+    };
+
+    option && myChart.setOption(option);
+
+    // 隨視窗大小改變自適應縮放
+    window.addEventListener('resize', function() {
+        myChart.resize();
+    });
+</script>
+
+</body>
+</html>
