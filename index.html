@@ -14,7 +14,7 @@
             padding: 20px;
         }
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
             background: #ffffff;
             border-radius: 12px;
@@ -38,22 +38,32 @@
     var myChart = echarts.init(chartDom);
     var option;
 
-    // 專案數據資料集 (未來新建評估)
-    const projects = ['日本關西\n(CMO戰略代工)', '越南平陽\n(Greenfield自建)', '墨西哥新萊昂\n(Greenfield自建)'];
+    // 專案數據資料集 (全球新建評估與替代方案)
+    const projects = [
+        '馬來西亞 雪蘭莪\n(Greenfield自建)', 
+        '泰國 羅勇\n(Greenfield自建)', 
+        '波蘭 羅茲\n(Greenfield自建)', 
+        '越南 平陽\n(Greenfield自建)', 
+        '墨西哥 新萊昂\n(Greenfield自建)', 
+        '日本 關西\n(CMO戰略代工)'
+    ];
     
     // 決策狀態標籤
     const statusLabels = [
-        '優先推進 (暫定，待C2壓力測試覆核)', 
-        '強制擱置 (需補齊綠電與智權對策)', 
-        '警戒撤出 / 重大條件重議 (C4,D2,D3待補證)'
+        '有條件推進 (需精算太陽能CAPEX與缺工對策)', 
+        '擱置 (綠電取得成本過高)', 
+        '擱置 (極端通膨與高CAPEX摧毀經濟性)', 
+        '強制擱置 (智權、綠電與金流管制硬傷)', 
+        '警戒撤出 / 重大條件重議 (缺水與安保危機)',
+        '優先推進 (暫定，待C2壓力測試與合約覆核)'
     ];
     
     // 各維度數據
-    const dataA = [15, 10, 15]; // A. 關稅避險
-    const dataB = [15, 5, 10];  // B. 智權護城河
-    const dataC = [40, 33, 25]; // C. 財務專屬模組
-    const dataD = [25, 18, 10]; // D. 永續與營運基建
-    const dataRisk = [0, -5, -10]; // 客觀風險扣分 (工程通膨等)
+    const dataA = [10, 10, 15, 10, 15, 15]; // A. 關稅避險
+    const dataB = [15, 10, 15, 5, 10, 15];  // B. 智權護城河
+    const dataC = [35, 35, 25, 33, 25, 40]; // C. 財務專屬模組
+    const dataD = [20, 20, 25, 18, 10, 25]; // D. 永續與營運基建
+    const dataRisk = [0, -5, -10, -5, -10, 0]; // 客觀風險扣分 (加權通膨曝險)
 
     // 計算最終總分
     const totalScores = projects.map((_, i) => {
@@ -63,7 +73,7 @@
     option = {
         title: {
             text: '大江生醫 (TCI) 海外新建擴廠專案篩選決策矩陣',
-            subtext: '最終實戰核准版：排除已承諾資本，聚焦未來選址',
+            subtext: '最終實戰核准版：全球 Greenfield 評比與戰略替代方案',
             left: 'center',
             textStyle: { fontSize: 20, fontWeight: 'bold', color: '#1a1a1a' },
             subtextStyle: { fontSize: 13, color: '#666666' }
@@ -100,7 +110,7 @@
         xAxis: {
             type: 'category',
             data: projects,
-            axisLabel: { interval: 0, fontWeight: 'bold', fontSize: 13, lineHeight: 20 }
+            axisLabel: { interval: 0, fontWeight: 'bold', fontSize: 12, lineHeight: 18 }
         },
         yAxis: {
             type: 'value',
@@ -115,7 +125,7 @@
                 type: 'bar',
                 stack: 'Total',
                 color: '#2b5c8f',
-                barWidth: '45%',
+                barWidth: '40%',
                 data: dataA
             },
             {
@@ -144,15 +154,18 @@
                     formatter: function (params) {
                         let i = params.dataIndex;
                         let text = `${totalScores[i]} 分`;
-                        if (i === 0) text += '\n(暫定/待覆核)';
-                        if (i === 1) text += '\n(強制擱置)';
-                        if (i === 2) text += '\n(警戒撤出)';
+                        if (i === 0) text += '\n(有條件推進)';
+                        if (i === 1) text += '\n(擱置)';
+                        if (i === 2) text += '\n(擱置)';
+                        if (i === 3) text += '\n(強制擱置)';
+                        if (i === 4) text += '\n(警戒撤出)';
+                        if (i === 5) text += '\n(暫定/待覆核)';
                         return text;
                     },
-                    fontSize: 13,
+                    fontSize: 12,
                     fontWeight: 'bold',
                     color: '#333',
-                    lineHeight: 18,
+                    lineHeight: 16,
                     distance: 10
                 }
             },
