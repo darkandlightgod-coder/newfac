@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>大江生醫 (TCI) 海外擴廠專案評估矩陣</title>
+    <title>大江生醫 (TCI) 海外新建擴廠專案篩選決策矩陣</title>
     <!-- 引入 Apache ECharts CDN -->
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <style>
@@ -14,7 +14,7 @@
             padding: 20px;
         }
         .container {
-            max-width: 1100px;
+            max-width: 1000px;
             margin: 0 auto;
             background: #ffffff;
             border-radius: 12px;
@@ -23,7 +23,7 @@
         }
         #chart-container {
             width: 100%;
-            height: 600px;
+            height: 650px;
         }
     </style>
 </head>
@@ -38,25 +38,32 @@
     var myChart = echarts.init(chartDom);
     var option;
 
-    // 專案數據資料集
-    const projects = ['歐洲 (CMO代工)', '美國猶他 (租轉買)', '歐洲 (自建廠房)', '印尼雅加達 (自建)', '中國上海 (既有據點)', '印度 (自建)'];
+    // 專案數據資料集 (未來新建評估)
+    const projects = ['日本關西\n(CMO戰略代工)', '越南平陽\n(Greenfield自建)', '墨西哥新萊昂\n(Greenfield自建)'];
+    
+    // 決策狀態標籤
+    const statusLabels = [
+        '優先推進 (暫定，待C2壓力測試覆核)', 
+        '強制擱置 (需補齊綠電與智權對策)', 
+        '警戒撤出 / 重大條件重議 (C4,D2,D3待補證)'
+    ];
     
     // 各維度數據
-    const dataA = [15, 15, 15, 10, 10, 10]; // A. 關稅避險
-    const dataB = [10, 15, 15, 10, 10, 5];  // B. 智權護城河
-    const dataC = [45, 40, 25, 40, 40, 35]; // C. 財務專屬模組
-    const dataD = [25, 15, 25, 10, 15, 0];  // D. 永續與營運基建
-    const dataRisk = [0, 0, -5, -15, -35, -25]; // 客觀風險扣分
+    const dataA = [15, 10, 15]; // A. 關稅避險
+    const dataB = [15, 5, 10];  // B. 智權護城河
+    const dataC = [40, 33, 25]; // C. 財務專屬模組
+    const dataD = [25, 18, 10]; // D. 永續與營運基建
+    const dataRisk = [0, -5, -10]; // 客觀風險扣分 (工程通膨等)
 
-    // 計算最終總分（示範暫評/最終分）
+    // 計算最終總分
     const totalScores = projects.map((_, i) => {
         return dataA[i] + dataB[i] + dataC[i] + dataD[i] + dataRisk[i];
     });
 
     option = {
         title: {
-            text: '大江生醫 (TCI) 海外擴廠專案評估與風險矩陣',
-            subtext: '第十一版·量化積分與客觀風險扣分視覺化 (雙向堆疊圖)',
+            text: '大江生醫 (TCI) 海外新建擴廠專案篩選決策矩陣',
+            subtext: '最終實戰核准版：排除已承諾資本，聚焦未來選址',
             left: 'center',
             textStyle: { fontSize: 20, fontWeight: 'bold', color: '#1a1a1a' },
             subtextStyle: { fontSize: 13, color: '#666666' }
@@ -65,38 +72,40 @@
             trigger: 'axis',
             axisPointer: { type: 'shadow' },
             formatter: function (params) {
-                let res = `<strong>${params[0].name}</strong><br/>`;
+                let index = params[0].dataIndex;
+                let res = `<div style="padding: 5px;"><strong>${projects[index].replace('\n',' ')}</strong><br/>`;
                 let sum = 0;
                 params.forEach(item => {
                     let val = item.value;
-                    res += `${item.marker} ${item.seriesName}: <strong>${val} 分</strong><br/>`;
+                    res += `${item.marker} ${item.seriesName}: <span style="float:right; margin-left:15px; font-weight:bold;">${val} 分</span><br/>`;
                     sum += val;
                 });
-                res += `<hr style="margin:5px 0; border:0; border-top:1px solid #ccc;"/>`;
-                res += `🎯 <strong>最終示範總分: ${sum} 分</strong>`;
+                res += `<hr style="margin:10px 0; border:0; border-top:1px solid #ccc;"/>`;
+                res += `<div style="font-size: 15px; color: #333;">🎯 最終積分: <strong>${sum} 分</strong></div>`;
+                res += `<div style="font-size: 13px; color: #d35400; margin-top: 5px; max-width: 250px; white-space: normal;">⚠️ 決策: ${statusLabels[index]}</div></div>`;
                 return res;
             }
         },
         legend: {
-            top: '10%',
+            top: '12%',
             data: ['A. 關稅與貿易避險 (15)', 'B. 商業與智權護城河 (15)', 'C. 財務專屬模組 (45)', 'D. 永續與營運基建 (25)', '客觀風險扣分']
         },
         grid: {
             left: '3%',
             right: '4%',
             bottom: '8%',
-            top: '20%',
+            top: '25%',
             containLabel: true
         },
         xAxis: {
             type: 'category',
             data: projects,
-            axisLabel: { interval: 0, fontWeight: 'bold', fontSize: 12 }
+            axisLabel: { interval: 0, fontWeight: 'bold', fontSize: 13, lineHeight: 20 }
         },
         yAxis: {
             type: 'value',
             name: '評估積分 (Score)',
-            min: -40,
+            min: -20,
             max: 110,
             splitLine: { lineStyle: { type: 'dashed' } }
         },
@@ -106,6 +115,7 @@
                 type: 'bar',
                 stack: 'Total',
                 color: '#2b5c8f',
+                barWidth: '45%',
                 data: dataA
             },
             {
@@ -128,16 +138,22 @@
                 stack: 'Total',
                 color: '#7ed321',
                 data: dataD,
-                // 在正向柱體頂端標示最終總分
                 label: {
                     show: true,
                     position: 'top',
                     formatter: function (params) {
-                        return `${totalScores[params.dataIndex]} 分`;
+                        let i = params.dataIndex;
+                        let text = `${totalScores[i]} 分`;
+                        if (i === 0) text += '\n(暫定/待覆核)';
+                        if (i === 1) text += '\n(強制擱置)';
+                        if (i === 2) text += '\n(警戒撤出)';
+                        return text;
                     },
-                    fontSize: 14,
+                    fontSize: 13,
                     fontWeight: 'bold',
-                    color: '#000000'
+                    color: '#333',
+                    lineHeight: 18,
+                    distance: 10
                 }
             },
             {
@@ -153,7 +169,7 @@
                             yAxis: 80,
                             name: '80分 戰略推進門檻',
                             lineStyle: { color: '#e67e22', width: 2, type: 'dashed' },
-                            label: { formatter: '80分 戰略推進門檻', position: 'end', color: '#e67e22', fontWeight: 'bold' }
+                            label: { formatter: '80分 戰略推進門檻', position: 'end', color: '#e67e22', fontWeight: 'bold', padding: [0, 0, -15, 0] }
                         },
                         {
                             yAxis: 0,
@@ -166,7 +182,7 @@
     };
 
     option && myChart.setOption(option);
-
+    
     // 隨視窗大小改變自適應縮放
     window.addEventListener('resize', function() {
         myChart.resize();
